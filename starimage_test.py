@@ -22,7 +22,19 @@ class TestStarImage(unittest.TestCase):
         self.assertTrue(starimage.is_url('http://example.com')) 
         
     def test_is_url_true_if_https(self):
-        self.assertTrue(starimage.is_url('https://example.com'))               
+        self.assertTrue(starimage.is_url('https://example.com'))           
+        
+    def test_is_html_false_if_equals_none(self):
+        self.assertFalse(starimage.is_html(None))  
+        
+    def test_is_html_false_if_no_html_tag_found(self):
+        self.assertFalse(starimage.is_html("sfsf<img>"))
+        
+    def test_is_html_true_if_html_tag_found(self):
+        self.assertTrue(starimage.is_html('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>'))        
+        
+    def test_is_html_true_if_html_tag_found_with_attributes(self):
+        self.assertTrue(starimage.is_html('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">'))        
         
 if __name__ == '__main__':
     unittest.main()
