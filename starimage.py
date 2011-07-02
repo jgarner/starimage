@@ -1,8 +1,14 @@
-def extract():
+import urlparse
+
+def extract(url_or_html):
     return True
     
-def is_url():
-    return True
+def is_url(url):
+    if url == None:
+        return False
+    else:
+        parts = urlparse.urlparse(url)
+        return parts.scheme in ['http', 'https']
     
 def is_html():
     return True  
@@ -18,3 +24,6 @@ def get_largest_image():
     
 def get_image_content_length():
     return True 
+    
+    
+is_url('dfdpwww.nba.com')
