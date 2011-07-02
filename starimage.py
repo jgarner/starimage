@@ -5,10 +5,7 @@ def is_url():
     return True
     
 def is_html():
-    return True
-    
-def is_html():
-    return True    
+    return True  
     
 def get_html_from_url():
     return True
