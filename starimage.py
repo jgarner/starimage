@@ -15,13 +15,16 @@ def is_html(html):
     if html == None:
         return False
     else:
-        return re.search( '<html.*?>', html, re.I) != None
+        return re.search( '<html.*?>', html, re.I|re.S) != None
     
 def parse_html_from_url():
     return True
     
 def parse_html_from_string():
-    return True    
+    return True 
+    
+def parse_html_fragment_from_string():
+    return True       
     
 def get_all_images():
     return True
