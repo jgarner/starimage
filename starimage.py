@@ -17,10 +17,13 @@ def is_html(html):
     else:
         return re.search( '<html.*?>', html, re.I) != None
     
-def get_html_from_url():
+def parse_html_from_url():
     return True
     
-def get_all_images_from_html():
+def parse_html_from_string():
+    return True    
+    
+def get_all_images():
     return True
     
 def get_largest_image():
