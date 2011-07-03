@@ -1,44 +1,66 @@
 import starimage
+import lxml
 import unittest
 
 class TestStarImage(unittest.TestCase):
     
     def test_interface(self):
-        self.assertTrue(starimage.extract != None)
-        self.assertTrue(starimage.is_url != None)
-        self.assertTrue(starimage.is_html != None)
-        self.assertTrue(starimage.parse_html_from_url != None)
-        self.assertTrue(starimage.parse_html_from_string != None)
-        self.assertTrue(starimage.parse_html_fragment_from_string != None)
-        self.assertTrue(starimage.get_all_images != None)
-        self.assertTrue(starimage.get_largest_image != None)
-        self.assertTrue(starimage.get_image_content_length != None)
+        self.assertIsNotNone(starimage.extract)        
+        self.assertIsNotNone(starimage.is_url)
+        self.assertIsNotNone(starimage.is_html)
+        self.assertIsNotNone(starimage.get_doc)
+        self.assertIsNotNone(starimage.get_all_images)
+        self.assertIsNotNone(starimage.get_largest_image)
+        self.assertIsNotNone(starimage.get_image_content_length)
+        self.assertIsNotNone(starimage.handle_exception)
        
     # test is_url    
-    def test_is_url_false_if_url_equals_none(self):
+    def test_is_url_return_false_if_url_equals_none(self):
         self.assertFalse(starimage.is_url(None))
         
-    def test_is_url_false_if_not_http_or_https(self):
+    def test_is_url_return_false_if_not_http_or_https(self):
         self.assertFalse(starimage.is_url('ftp://example'))
     
-    def test_is_url_true_if_http(self):
+    def test_is_url_return_true_if_http(self):
         self.assertTrue(starimage.is_url('http://example.com')) 
         
-    def test_is_url_true_if_https(self):
+    def test_is_url_return_true_if_https(self):
         self.assertTrue(starimage.is_url('https://example.com'))           
         
     # test is_html    
-    def test_is_html_false_if_equals_none(self):
+    def test_is_html_return_false_if_equals_none(self):
         self.assertFalse(starimage.is_html(None))  
         
-    def test_is_html_false_if_no_html_tag_found(self):
+    def test_is_html_return_false_if_no_html_tag_found(self):
         self.assertFalse(starimage.is_html("sfsf<img>"))
         
-    def test_is_html_true_if_html_tag_found(self):
+    def test_is_html_return_true_if_html_tag_found(self):
         self.assertTrue(starimage.is_html('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>'))        
         
-    def test_is_html_true_if_html_tag_found_with_attributes(self):
+    def test_is_html_return_true_if_html_tag_found_with_attributes(self):
         self.assertTrue(starimage.is_html('<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">'))        
+        
+    # test get_doc
+    def test_get_doc_return_none_if_param_is_none(self):
+        self.assertIsNone(starimage.get_doc(None))
+
+    def test_get_doc_raises_ioerror_with_invalid_url(self):
+        self.assertRaises(IOError, starimage.get_doc('http://1234abcdef.co.nz.au'))
+        
+    def test_get_doc_returns_instance_of_element_tree_with_valid_url(self):
+        self.assertIsInstance(starimage.get_doc('http://www.google.co.nz'), lxml.etree._ElementTree)        
+        
+    def test_get_doc_raises_parsererror_with_empty_string(self):
+        self.assertRaises(lxml.etree.ParserError, starimage.get_doc(''))    
+        
+    def test_get_doc_returns_none_with_empty_string(self):
+        self.assertIsNone(starimage.get_doc('')) 
+        
+    def test_get_doc_returns_instance_of_element_with_valid_html(self):
+        self.assertIsInstance(starimage.get_doc('<html><head></head><body><div>Hi</div></body></html>'), lxml.etree._Element)   
+        
+    def test_get_doc_returns_instance_of_element_with_valid_html_fragment(self):
+        self.assertIsInstance(starimage.get_doc('<div>Hi</div>'), lxml.etree._Element)                              
         
 if __name__ == '__main__':
     unittest.main()
