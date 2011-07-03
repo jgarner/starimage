@@ -49,12 +49,7 @@ class TestStarImage(unittest.TestCase):
     @patch('lxml.html.parse')
     def test_get_doc_raises_ioerror_with_invalid_url(self, parse_mock):
         parse_mock.side_effect = IOError()
-        self.assertRaises(IOError, starimage.get_doc('http://1234abcdef.co.nz.au'))
-        
-    @patch('lxml.html.parse')    
-    def test_get_doc_returns_instance_of_element_tree_with_valid_url(self, parse_mock):
-        parse_mock.return_value = lxml.etree._ElementTree()
-        self.assertIsInstance(starimage.get_doc('http://www.google.co.nz'), lxml.etree._ElementTree)        
+        self.assertRaises(IOError, starimage.get_doc('http://1234abcdef.co.nz.au'))      
         
     def test_get_doc_raises_parsererror_with_empty_string(self):
         self.assertRaises(lxml.etree.ParserError, starimage.get_doc(''))    

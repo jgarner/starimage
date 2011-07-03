@@ -24,7 +24,11 @@ def get_doc(url_or_html):
         if url_or_html == None:
             return None
         elif is_url(url_or_html):
-            return lxml.html.parse(url_or_html)
+            doc = lxml.html.parse(url_or_html).getroot()
+            parts = urlparse.urlparse(url_or_html)
+            if parts.scheme in ['http', 'https'] and parts.hostname != None:
+                doc.make_links_absolute(parts.scheme + '://' + parts.hostname) 
+            return doc
         elif is_html(url_or_html):
             return lxml.html.document_fromstring(url_or_html)
         else:
@@ -47,4 +51,4 @@ def get_image_content_length():
     return True
 
 def handle_exception(message):
-     logging.error('starimage: ' + message)
+     logging.error('starimage: ' + message)   
