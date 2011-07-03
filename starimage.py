@@ -37,6 +37,8 @@ def get_doc(url_or_html):
 def get_images(doc):
     if doc == None:
         return None
+    else:
+        return doc.xpath('//img')
     
 def get_largest_image():
     return True
@@ -45,4 +47,4 @@ def get_image_content_length():
     return True
 
 def handle_exception(message):
-     logging.error('starimage: ' + message)    
+     logging.error('starimage: ' + message)
