@@ -34,8 +34,9 @@ def get_doc(url_or_html):
     except lxml.etree.ParserError, e:
         handle_exception('Error parsing HTML')
                     
-def get_all_images():
-    return True
+def get_images(doc):
+    if doc == None:
+        return None
     
 def get_largest_image():
     return True

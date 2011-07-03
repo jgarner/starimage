@@ -1,5 +1,7 @@
 import starimage
 import lxml
+import mock
+from mock import patch
 import unittest
 
 class TestStarImage(unittest.TestCase):
@@ -9,7 +11,7 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNotNone(starimage.is_url)
         self.assertIsNotNone(starimage.is_html)
         self.assertIsNotNone(starimage.get_doc)
-        self.assertIsNotNone(starimage.get_all_images)
+        self.assertIsNotNone(starimage.get_images)
         self.assertIsNotNone(starimage.get_largest_image)
         self.assertIsNotNone(starimage.get_image_content_length)
         self.assertIsNotNone(starimage.handle_exception)
@@ -44,10 +46,14 @@ class TestStarImage(unittest.TestCase):
     def test_get_doc_return_none_if_param_is_none(self):
         self.assertIsNone(starimage.get_doc(None))
 
-    def test_get_doc_raises_ioerror_with_invalid_url(self):
+    @patch('lxml.html.parse')
+    def test_get_doc_raises_ioerror_with_invalid_url(self, parse_mock):
+        parse_mock.side_effect = IOError()
         self.assertRaises(IOError, starimage.get_doc('http://1234abcdef.co.nz.au'))
         
-    def test_get_doc_returns_instance_of_element_tree_with_valid_url(self):
+    @patch('lxml.html.parse')    
+    def test_get_doc_returns_instance_of_element_tree_with_valid_url(self, parse_mock):
+        parse_mock.return_value = lxml.etree._ElementTree()
         self.assertIsInstance(starimage.get_doc('http://www.google.co.nz'), lxml.etree._ElementTree)        
         
     def test_get_doc_raises_parsererror_with_empty_string(self):
@@ -60,7 +66,11 @@ class TestStarImage(unittest.TestCase):
         self.assertIsInstance(starimage.get_doc('<html><head></head><body><div>Hi</div></body></html>'), lxml.etree._Element)   
         
     def test_get_doc_returns_instance_of_element_with_valid_html_fragment(self):
-        self.assertIsInstance(starimage.get_doc('<div>Hi</div>'), lxml.etree._Element)                              
+        self.assertIsInstance(starimage.get_doc('<div>Hi</div>'), lxml.etree._Element)  
+    
+    # test get_images   
+    def test_get_images_return_none_if_doc_is_none(self):
+        self.assertIsNone(starimage.get_images(None))                         
         
 if __name__ == '__main__':
     unittest.main()
