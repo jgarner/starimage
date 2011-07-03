@@ -45,5 +45,3 @@ def get_image_content_length():
 
 def handle_exception(message):
      logging.error('starimage: ' + message)    
-     
-print(get_doc('<html></html>'))
