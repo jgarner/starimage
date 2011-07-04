@@ -39,11 +39,13 @@ Example:
       img src='http://a.com/img.jpg' /></div>"
   image_details = starimage.extract(fragment)
   
-  if image_details != None
-    print image_details['url']
-    print str(image_details['size'])
-    print str(image_details['width'])
-    print str(image_details['height'])
+  if image_details != None:
+      print image_details['url']
+      print str(image_details['size'])
+      if image_details['width'] != None:
+          print str(image_details['width'])
+      if image_details['height'] != None:
+          print str(image_details['height'])
 
 Library dependencies:
   lxml: http://lxml.de/
