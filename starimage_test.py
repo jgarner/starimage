@@ -80,6 +80,19 @@ class TestStarImage(unittest.TestCase):
         imgs = doc.xpath('//img')
         self.assertEquals(imgs[0].get('src'), 'http://example.com/img1.gif')                                
         
+# test get_images   
+    def test_get_images_return_none_if_doc_is_none(self):
+        self.assertIsNone(starimage.get_images(None))    
+
+    def test_get_images_return_empty_list_if_doc_has_no_images(self):
+        doc = starimage.get_doc('<html></html>')
+        self.assertEquals(len(starimage.get_images(doc)), 0) 
+
+    def test_get_images_return_list_of_images_if_doc_has_images_from_html(self):
+        doc = starimage.get_doc('<html><header></header><body><img src="/test.jpg" /><img src="/logo.gif" /></body></html>')
+        imgs = starimage.get_images(doc)
+        self.assertEquals(imgs[0].tag, 'img')
+                        
 if __name__ == '__main__':
     unittest.main()
 

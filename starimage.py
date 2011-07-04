@@ -53,7 +53,10 @@ def get_doc(url_or_html, base_url=None):
     return doc
                     
 def get_images(doc):
-    return True
+    if doc == None:
+        return None
+    else:
+        return doc.xpath('//img')
     
 def get_largest_image():
     return True
