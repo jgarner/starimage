@@ -140,6 +140,24 @@ class TestStarImage(unittest.TestCase):
         imgs = starimage.get_images(doc)        
         image_details = starimage.get_image_details(imgs)
         self.assertEquals(len(image_details), 1)
+        
+    def test_get_image_details_returns_details(self):
+        html = '<html><header></header><body><img src="http://b.com/a.gif" width="200" height="300" /></body></html>'
+        doc = starimage.get_doc(html)
+        imgs = starimage.get_images(doc)        
+        image_detail = starimage.get_image_details(imgs)[0]
+        self.assertEquals(image_detail['url'], 'http://b.com/a.gif') 
+        self.assertEquals(image_detail['width'], 200)  
+        self.assertEquals(image_detail['height'], 300)   
+        
+    def test_get_image_details_returns_none_for_width_and_height_if_not_set(self):
+        html = '<html><header></header><body><img src="http://b.com/a.gif" /></body></html>'
+        doc = starimage.get_doc(html)
+        imgs = starimage.get_images(doc)        
+        image_detail = starimage.get_image_details(imgs)[0]
+        self.assertEquals(image_detail['url'], 'http://b.com/a.gif') 
+        self.assertEquals(image_detail['width'], None)  
+        self.assertEquals(image_detail['height'], None)           
 
 # test get_url_content_length(url)
     @patch('urllib2.urlopen')
@@ -169,6 +187,8 @@ class TestStarImage(unittest.TestCase):
         details = starimage.get_largest_image(imgs)   
         self.assertEquals(details['url'], 'http://a.com/2.gif')
         self.assertEquals(details['size'], 500)
+        self.assertEquals(details['width'], 100)
+        self.assertEquals(details['height'], 300)
    
 # test_extract(url_or_html, base_url=None)
     @patch('starimage.get_url_content_length')
