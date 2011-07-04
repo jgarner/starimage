@@ -2,6 +2,7 @@ import logging
 import urlparse
 import re
 import lxml.html
+import urllib2
             
 def is_url(url):
     if url == None:
@@ -68,10 +69,25 @@ def get_image_urls(images):
         image_urls = set(image_urls)
     return image_urls
                 
-def get_largest_image():
-    return True
+class HeadRequest(urllib2.Request):
+    def get_method(self):
+        return "HEAD"
+
+def get_url_content_length(url):
+    content_length = 0;
+    try:
+        response = urllib2.urlopen(HeadRequest(url))
+    except urllib2.URLError, e:
+        if hasattr(e, 'reason'):
+            handle_exception('We failed to read a server for: ' + url + '. Reason: ' + str(e.reason))
+        elif hasattr(e, 'code'):
+            handle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
+    else:
+        if response.headers.has_key('content-length'):
+            content_length = long(response.headers['content-length'])
+    return content_length
     
-def get_image_content_length():
+def get_largest_image():
     return True   
      
 def extract(url_or_html):

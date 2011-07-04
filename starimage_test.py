@@ -1,7 +1,8 @@
 import starimage
 import lxml
 import mock
-from mock import patch
+from mock import Mock, patch
+import urllib2
 import unittest
 
 class TestStarImage(unittest.TestCase):
@@ -14,8 +15,8 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNotNone(starimage.get_doc)
         self.assertIsNotNone(starimage.get_images)
         self.assertIsNotNone(starimage.get_image_urls)
+        self.assertIsNotNone(starimage.get_url_content_length)
         self.assertIsNotNone(starimage.get_largest_image)
-        self.assertIsNotNone(starimage.get_image_content_length)        
         self.assertIsNotNone(starimage.extract)  
        
 # test is_url    
@@ -116,7 +117,20 @@ class TestStarImage(unittest.TestCase):
         imgs = starimage.get_images(doc)        
         imgsrcs = starimage.get_image_urls(imgs)
         self.assertEquals(len(imgsrcs), 1)
-        self.assertTrue('http://example.com/logo.gif' in imgsrcs)        
+        self.assertTrue('http://example.com/logo.gif' in imgsrcs)   
+        
+# test get_url_content_length
+    @patch('urllib2.urlopen')
+    def test_get_url_content_length_returns_0_if_invalid_url(self, urlopen_mock):
+        urlopen_mock.side_effect = urllib2.URLError('error')
+        self.assertEquals(starimage.get_url_content_length('http://invalidurl.com'), 0) 
+
+    @patch('urllib2.urlopen')
+    def test_get_url_content_length_returns_content_length_from_header(self, urlopen_mock):
+        my_mock = Mock()
+        my_mock.headers = {'content-length': 100}
+        urlopen_mock.return_value = my_mock
+        self.assertEquals(starimage.get_url_content_length('http://invalidurl.com'), 100)             
                         
 if __name__ == '__main__':
     unittest.main()
