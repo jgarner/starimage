@@ -87,8 +87,18 @@ def get_url_content_length(url):
             content_length = long(response.headers['content-length'])
     return content_length
     
-def get_largest_image():
-    return True   
+def get_largest_image(images):
+    largest_img_url = None
+    largest_content_length = 0    
+    image_urls = get_image_urls(images)
+    if len(image_urls) > 0:
+        content_length = 0
+        for url in image_urls:
+            content_length = get_url_content_length(url)           
+            if content_length > largest_content_length:
+                largest_img_url = url
+                largest_content_length = content_length
+    return largest_img_url   
      
 def extract(url_or_html):
     return True     

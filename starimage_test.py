@@ -7,6 +7,29 @@ import unittest
 
 class TestStarImage(unittest.TestCase):
     
+    html = "<html><header></header><body>\n\
+        <img src='/r1.gif' />\n\
+        <img src='/r2.gif' />\n\
+        <img src='/r3.gif' />\n\
+        <img src='http://a.com/1.gif' />\n\
+        <img src='http://a.com/2.gif' />\n\
+        <img src='http://a.com/3.gif' />\n\
+        <img src='http://a.com/4.gif' />\n\
+        </body></html>"
+            
+    def get_content_length(*args, **kwargs):
+        url  = args[1]
+        if url == 'http://a.com/1.gif':
+            return 100
+        elif url == 'http://a.com/2.gif':
+            return 500
+        elif url == 'http://a.com/3.gif':
+            return 300
+        elif url == 'http://a.com/4.gif':
+            return 450
+        else:
+            return 0
+                
     def test_interface(self):
         self.assertIsNotNone(starimage.handle_exception)     
         self.assertIsNotNone(starimage.is_url)
@@ -130,7 +153,22 @@ class TestStarImage(unittest.TestCase):
         my_mock = Mock()
         my_mock.headers = {'content-length': 100}
         urlopen_mock.return_value = my_mock
-        self.assertEquals(starimage.get_url_content_length('http://invalidurl.com'), 100)             
+        self.assertEquals(starimage.get_url_content_length('http://invalidurl.com'), 100)     
+        
+# test_get_largest_image
+    def test_get_largest_image_returns_none_if_image_list_is_none(self):
+        self.assertIsNone(starimage.get_largest_image(None)) 
+
+    def test_get_largest_image_returns_none_on_empty_image_list(self):
+        self.assertIsNone(starimage.get_largest_image([]))                    
+
+    @patch('starimage.get_url_content_length')
+    def test_get_largest_image_returns_largest_image_url(self, get_url_content_length_mock):
+        get_url_content_length_mock.side_effect = self.get_content_length
+        doc = starimage.get_doc(TestStarImage.html)
+        imgs = starimage.get_images(doc)     
+        largest_image = starimage.get_largest_image(imgs)   
+        self.assertEquals(largest_image, 'http://a.com/2.gif')                
                         
 if __name__ == '__main__':
     unittest.main()
