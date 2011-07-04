@@ -37,7 +37,7 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNotNone(starimage.get_doc_from_url)
         self.assertIsNotNone(starimage.get_doc)
         self.assertIsNotNone(starimage.get_images)
-        self.assertIsNotNone(starimage.get_image_urls)
+        self.assertIsNotNone(starimage.get_image_details)
         self.assertIsNotNone(starimage.get_url_content_length)
         self.assertIsNotNone(starimage.get_largest_image)
         self.assertIsNotNone(starimage.extract)       
@@ -118,29 +118,28 @@ class TestStarImage(unittest.TestCase):
         imgs = starimage.get_images(doc)
         self.assertEquals(imgs[0].tag, 'img')                                 
     
-# test get_image_urls(images)
-    def test_get_image_urls_returns_empty_list_if_no_images(self):
+# test get_image_details(images)
+    def test_get_image_details_returns_empty_list_if_no_images(self):
         html = '<html><header></header><body></body></html>'
         doc = starimage.get_doc(html)
         imgs = starimage.get_images(doc)        
-        imgsrcs = starimage.get_image_urls(imgs)
-        self.assertEquals(len(imgsrcs), 0)
+        image_details = starimage.get_image_details(imgs)
+        self.assertEquals(len(image_details), 0)
         
-    def test_get_image_urls_returns_only_absolute_path_image_urls(self):
+    def test_get_image_details_returns_only_absolute_path_image_urls(self):
         html = '<html><header></header><body><img src="/relative.jpg" /><img src="http://example.com/logo.gif" /></body></html>'
         doc = starimage.get_doc(html)
         imgs = starimage.get_images(doc)        
-        imgsrcs = starimage.get_image_urls(imgs)
-        self.assertEquals(len(imgsrcs), 1)
-        self.assertTrue('http://example.com/logo.gif' in imgsrcs)
+        image_details = starimage.get_image_details(imgs)
+        self.assertEquals(len(image_details), 1)
+        self.assertEquals(image_details[0]['url'], 'http://example.com/logo.gif')
         
-    def test_get_image_urls_returns_only_unique_urls(self):
+    def test_get_image_details_returns_only_unique_urls(self):
         html = '<html><header></header><body><img src="http://example.com/logo.gif" /><img src="http://example.com/logo.gif" /></body></html>'
         doc = starimage.get_doc(html)
         imgs = starimage.get_images(doc)        
-        imgsrcs = starimage.get_image_urls(imgs)
-        self.assertEquals(len(imgsrcs), 1)
-        self.assertTrue('http://example.com/logo.gif' in imgsrcs)               
+        image_details = starimage.get_image_details(imgs)
+        self.assertEquals(len(image_details), 1)
 
 # test get_url_content_length(url)
     @patch('urllib2.urlopen')

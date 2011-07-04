@@ -59,15 +59,37 @@ def get_images(doc):
     else:
         return doc.xpath('//img')
     
-def get_image_urls(images):
-    image_urls = []
+def is_number(s):
+    if s == None:
+        return None
+    else:
+        try:
+            float(s)
+            return True
+        except ValueError:
+            return False
+        
+def get_image_details(images):
+    image_details = []
     if images != None:
-        for image in images:
+        for image in images:            
             src = image.get('src')
             if is_url(src):
-                image_urls.append(src)
-        image_urls = set(image_urls)
-    return image_urls        
+                url_already_used = False
+                for image_item in image_details:
+                    if image_item['url'] == src:
+                        url_already_used = True
+                        break
+                if not url_already_used:
+                    image_detail = {'url': src, 'width': None, 'height': None}
+                    image_width = image.get('width')
+                    image_height = image.get('height')
+                    if is_number(image_width):
+                        image_detail['width'] = int(image_width)
+                    if is_number(image_height):
+                        image_detail['height'] = int(image_height)
+                    image_details.append(image_detail)
+    return image_details        
               
 class HeadRequest(urllib2.Request):
     def get_method(self):
@@ -88,18 +110,20 @@ def get_url_content_length(url):
     return content_length
     
 def get_largest_image(images): 
-    details = None   
-    image_urls = get_image_urls(images)
-    if len(image_urls) > 0:
+    largest_details = None   
+    image_details = get_image_details(images)
+    if len(image_details) > 0:
         content_length = 0
-        for url in image_urls:
-            content_length = get_url_content_length(url)           
-            if details == None:
-                details = {'url': None, 'size': None}
-            if details['size'] == None or content_length > details['size']:
-                details['url'] = url
-                details['size'] = content_length
-    return details  
+        for image_detail in image_details:
+            content_length = get_url_content_length(image_detail['url'])           
+            if largest_details == None:
+                largest_details = {'url': None, 'size': None}
+            if largest_details['size'] == None or content_length > largest_details['size']:
+                largest_details['url'] = image_detail['url']
+                largest_details['size'] = content_length
+                largest_details['width'] = image_detail['width']
+                largest_details['height'] = image_detail['height']
+    return largest_details  
     
 def extract(url_or_html, base_url=None):
     doc = get_doc(url_or_html, base_url)
