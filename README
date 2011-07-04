@@ -41,9 +41,9 @@ Example:
   
   if image_details != None
     print image_details['url']
-    print image_details['size']
-    print image_details['width']
-    print image_details['height']
+    print str(image_details['size'])
+    print str(image_details['width'])
+    print str(image_details['height'])
 
 Library dependencies:
   lxml: http://lxml.de/
