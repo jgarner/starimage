@@ -37,6 +37,7 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNotNone(starimage.get_doc_from_url)
         self.assertIsNotNone(starimage.get_doc)
         self.assertIsNotNone(starimage.get_images)
+        self.assertIsNotNone(starimage.is_number)
         self.assertIsNotNone(starimage.get_image_details)
         self.assertIsNotNone(starimage.get_url_content_length)
         self.assertIsNotNone(starimage.get_largest_image)
@@ -116,7 +117,17 @@ class TestStarImage(unittest.TestCase):
     def test_get_images_return_list_of_images_if_doc_has_images_from_html(self):
         doc = starimage.get_doc('<html><header></header><body><img src="/test.jpg" /><img src="/logo.gif" /></body></html>')
         imgs = starimage.get_images(doc)
-        self.assertEquals(imgs[0].tag, 'img')                                 
+        self.assertEquals(imgs[0].tag, 'img')   
+        
+# test is_number(s)
+    def test_is_number_returns_false_if_not_a_number(self):
+        self.assertFalse(starimage.is_number(None))
+        self.assertFalse(starimage.is_number("abcd"))
+        self.assertFalse(starimage.is_number("1a"))
+        
+    def test_is_number_returns_true_if_is_a_number(self):
+        self.assertTrue(starimage.is_number("1.12"))
+        self.assertTrue(starimage.is_number("85"))        
     
 # test get_image_details(images)
     def test_get_image_details_returns_empty_list_if_no_images(self):
