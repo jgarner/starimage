@@ -13,7 +13,7 @@
 #           starimage can only get the size of an image if it is an absolute path.
 #           Relative paths don't work. If base_url is set relative image urls will
 #           will use base_url as its base. If url_or_html param is a url the base_url
-#           will automitically be generated from the url but if base_url is set this
+#           will automatically be generated from the url but if base_url is set this
 #           will be used first.
 # 
 #     Returns:
