@@ -42,7 +42,7 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNotNone(starimage.get_largest_image)
         self.assertIsNotNone(starimage.extract)       
                             
-# test is_url    
+# test is_url(url)
     def test_is_url_return_false_if_url_equals_none(self):
         self.assertFalse(starimage.is_url(None))
         
@@ -55,7 +55,7 @@ class TestStarImage(unittest.TestCase):
     def test_is_url_return_true_if_https(self):
         self.assertTrue(starimage.is_url('https://example.com'))           
         
-# test is_html    
+# test is_html(html) 
     def test_is_html_return_false_if_equals_none(self):
         self.assertFalse(starimage.is_html(None))  
         
@@ -68,13 +68,13 @@ class TestStarImage(unittest.TestCase):
     def test_is_html_return_true_if_html_tag_found_with_attributes(self):
         self.assertTrue(starimage.is_html('<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">'))        
        
-# test get_doc_from_url
+# test get_doc_from_url(url)
     @patch('lxml.html.parse')
     def test_get_doc_from_url_raises_ioerror_with_invalid_url(self, parse_mock):
         parse_mock.side_effect = IOError()
         self.assertRaises(IOError, starimage.get_doc_from_url('http://invalidurl.com'))    
                      
-# test get_doc
+# test get_doc(url_or_html, base_url=None)
     def test_get_doc_return_none_if_param_is_none(self):
         self.assertIsNone(starimage.get_doc(None))
     
@@ -105,7 +105,7 @@ class TestStarImage(unittest.TestCase):
         imgs = doc.xpath('//img')
         self.assertEquals(imgs[0].get('src'), 'http://example.com/img1.gif')           
     
-# test get_images   
+# test get_images(doc)
     def test_get_images_return_none_if_doc_is_none(self):
         self.assertIsNone(starimage.get_images(None))    
         
@@ -118,7 +118,7 @@ class TestStarImage(unittest.TestCase):
         imgs = starimage.get_images(doc)
         self.assertEquals(imgs[0].tag, 'img')                                 
     
-# test get_image_urls
+# test get_image_urls(images)
     def test_get_image_urls_returns_empty_list_if_no_images(self):
         html = '<html><header></header><body></body></html>'
         doc = starimage.get_doc(html)
@@ -142,7 +142,7 @@ class TestStarImage(unittest.TestCase):
         self.assertEquals(len(imgsrcs), 1)
         self.assertTrue('http://example.com/logo.gif' in imgsrcs)               
 
-# test get_url_content_length
+# test get_url_content_length(url)
     @patch('urllib2.urlopen')
     def test_get_url_content_length_returns_0_if_invalid_url(self, urlopen_mock):
         urlopen_mock.side_effect = urllib2.URLError('error')
@@ -155,7 +155,7 @@ class TestStarImage(unittest.TestCase):
         urlopen_mock.return_value = my_mock
         self.assertEquals(starimage.get_url_content_length('http://invalidurl.com'), 100)             
                 
-# test_get_largest_image
+# test_get_largest_image(images)
     def test_get_largest_image_returns_none_if_image_list_is_none(self):
         self.assertIsNone(starimage.get_largest_image(None)) 
         
@@ -170,7 +170,7 @@ class TestStarImage(unittest.TestCase):
         largest_image = starimage.get_largest_image(imgs)   
         self.assertEquals(largest_image, 'http://a.com/2.gif')
    
-# test_extract
+# test_extract(url_or_html, base_url=None)
     @patch('starimage.get_url_content_length')
     def test_extract_gets_largest_image(self, get_url_content_length_mock):
         get_url_content_length_mock.side_effect = self.get_content_length
