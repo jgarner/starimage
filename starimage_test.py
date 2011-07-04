@@ -12,7 +12,7 @@ class TestStarImage(unittest.TestCase):
         <img src='/r2.gif' />\n\
         <img src='/r3.gif' />\n\
         <img src='http://a.com/1.gif' />\n\
-        <img src='http://a.com/2.gif' />\n\
+        <img src='http://a.com/2.gif' width='100', height='300' />\n\
         <img src='http://a.com/3.gif' />\n\
         <img src='http://a.com/4.gif' />\n\
         </body></html>"
@@ -163,18 +163,19 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNone(starimage.get_largest_image([]))                    
     
     @patch('starimage.get_url_content_length')
-    def test_get_largest_image_returns_largest_image_url(self, get_url_content_length_mock):
+    def test_get_largest_image_returns_largest_image_details(self, get_url_content_length_mock):
         get_url_content_length_mock.side_effect = self.get_content_length
         doc = starimage.get_doc(TestStarImage.html)
         imgs = starimage.get_images(doc)     
-        largest_image = starimage.get_largest_image(imgs)   
-        self.assertEquals(largest_image, 'http://a.com/2.gif')
+        details = starimage.get_largest_image(imgs)   
+        self.assertEquals(details['url'], 'http://a.com/2.gif')
+        self.assertEquals(details['size'], 500)
    
 # test_extract(url_or_html, base_url=None)
     @patch('starimage.get_url_content_length')
     def test_extract_gets_largest_image(self, get_url_content_length_mock):
         get_url_content_length_mock.side_effect = self.get_content_length
-        self.assertEquals(starimage.extract(TestStarImage.html), 'http://a.com/2.gif')
+        self.assertEquals(starimage.extract(TestStarImage.html)['url'], 'http://a.com/2.gif')
             
 if __name__ == '__main__':
     unittest.main()
