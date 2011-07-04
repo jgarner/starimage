@@ -26,7 +26,7 @@ def get_doc_from_url(url):
        doc = lxml.html.parse(url).getroot()   
     except IOError, e:
         handle_exception('Error opening url: ' + url)
-    return None
+    return doc
               
 def get_doc(url_or_html, base_url=None):
     doc = None
