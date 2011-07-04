@@ -51,7 +51,7 @@ def get_doc(url_or_html, base_url=None):
                     base_url = parts.scheme + '://' + parts.hostname
             if base_url != None:
                 doc.make_links_absolute(base_url)        
-    return doc
+    return doc 
                     
 def get_images(doc):
     if doc == None:
@@ -67,12 +67,12 @@ def get_image_urls(images):
             if is_url(src):
                 image_urls.append(src)
         image_urls = set(image_urls)
-    return image_urls
-                
+    return image_urls        
+              
 class HeadRequest(urllib2.Request):
     def get_method(self):
         return "HEAD"
-
+                            
 def get_url_content_length(url):
     content_length = 0;
     try:
@@ -98,7 +98,12 @@ def get_largest_image(images):
             if content_length > largest_content_length:
                 largest_img_url = url
                 largest_content_length = content_length
-    return largest_img_url   
-     
-def extract(url_or_html):
-    return True     
+    return largest_img_url  
+    
+def extract(url_or_html, base_url=None):
+    doc = get_doc(url_or_html, base_url)
+    if doc == None:
+        return None
+    else:
+        images = get_images(doc)
+        return get_largest_image(images)
