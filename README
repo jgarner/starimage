@@ -38,11 +38,12 @@ Example:
   fragment = "<div><img src='http://a.com/img1.gif' />\n\
       img src='http://a.com/img.jpg' /></div>"
   image_details = starimage.extract(fragment)
-
-  print image_details['url']
-  print image_details['size']
-  print image_details['width']
-  print image_details['height']
+  
+  if image_details != None
+    print image_details['url']
+    print image_details['size']
+    print image_details['width']
+    print image_details['height']
 
 Library dependencies:
   lxml: http://lxml.de/

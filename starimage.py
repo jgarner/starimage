@@ -28,21 +28,22 @@
 # 
 # Example:
 #   image_details = starimage.extract('http://www.example.com')
-#
+# 
 #   html = "<html><head></head><body>\n\
 #       <img src='http://a.com/img.gif' />\n\
 #       <img src='http://a.com/img.jpg' />\n\
 #       </body></html>"
 #   image_details = starimage.extract(html)
-#
+# 
 #   fragment = "<div><img src='http://a.com/img1.gif' />\n\
 #       img src='http://a.com/img.jpg' /></div>"
 #   image_details = starimage.extract(fragment)
-#
-#   print image_details['url']
-#   print image_details['size']
-#   print image_details['width']
-#   print image_details['height']
+#   
+#   if image_details != None
+#     print image_details['url']
+#     print image_details['size']
+#     print image_details['width']
+#     print image_details['height']
 # 
 # Library dependencies:
 #   lxml: http://lxml.de/
