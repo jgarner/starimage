@@ -1,8 +1,41 @@
+# Use starimage to find details of the largest image on a web page.
+#
+# Main usage:
+#
+# starimage.extract(url_or_html, base_url=None)
+#
+# Params:
+#   url_or_html:
+#       can be a full url eg 'http://www.example.com' (must be http or https)
+#       can be an html string or html fragment.
+#
+#   base_url: (optional)
+#       starimage can only get the size of an image if it is an absolute path.
+#       Relative paths don't work. If base_url is set relative image urls will
+#       will use base_url as its base. If url_or_html param is a url the base_url
+#       will automitically be generated from the url but if base_url is set this
+#       will be used first.
+#
+# Returns:
+#   If no image is found None is returned
+#   otherwise a dictionary object is returned
+#   {
+#       'url': <url of largest image found (string)>,
+#       'size': <size in bytes of image (long)>,
+#       'width': <None or width of image if width attribute set in <img /> tag (int)>,
+#       'height': <None or height of image if height attribute set in <img /> tag (int)>
+#   }
+#
+# Library dependencies:
+#   lxml: http://lxml.de/
+#
+# author: Joshua Garner
+
 import logging
 import urlparse
 import re
 import lxml.html
-import urllib2
+import urllib2    
             
 def is_url(url):
     if url == None:
