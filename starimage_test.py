@@ -13,6 +13,7 @@ class TestStarImage(unittest.TestCase):
         self.assertIsNotNone(starimage.get_doc_from_url)
         self.assertIsNotNone(starimage.get_doc)
         self.assertIsNotNone(starimage.get_images)
+        self.assertIsNotNone(starimage.get_image_urls)
         self.assertIsNotNone(starimage.get_largest_image)
         self.assertIsNotNone(starimage.get_image_content_length)        
         self.assertIsNotNone(starimage.extract)  
@@ -92,6 +93,30 @@ class TestStarImage(unittest.TestCase):
         doc = starimage.get_doc('<html><header></header><body><img src="/test.jpg" /><img src="/logo.gif" /></body></html>')
         imgs = starimage.get_images(doc)
         self.assertEquals(imgs[0].tag, 'img')
+        
+# test get_image_urls
+    def test_get_image_urls_returns_empty_list_if_no_images(self):
+        html = '<html><header></header><body></body></html>'
+        doc = starimage.get_doc(html)
+        imgs = starimage.get_images(doc)        
+        imgsrcs = starimage.get_image_urls(imgs)
+        self.assertEquals(len(imgsrcs), 0)
+
+    def test_get_image_urls_returns_only_absolute_path_image_urls(self):
+        html = '<html><header></header><body><img src="/relative.jpg" /><img src="http://example.com/logo.gif" /></body></html>'
+        doc = starimage.get_doc(html)
+        imgs = starimage.get_images(doc)        
+        imgsrcs = starimage.get_image_urls(imgs)
+        self.assertEquals(len(imgsrcs), 1)
+        self.assertTrue('http://example.com/logo.gif' in imgsrcs)
+
+    def test_get_image_urls_returns_only_unique_urls(self):
+        html = '<html><header></header><body><img src="http://example.com/logo.gif" /><img src="http://example.com/logo.gif" /></body></html>'
+        doc = starimage.get_doc(html)
+        imgs = starimage.get_images(doc)        
+        imgsrcs = starimage.get_image_urls(imgs)
+        self.assertEquals(len(imgsrcs), 1)
+        self.assertTrue('http://example.com/logo.gif' in imgsrcs)        
                         
 if __name__ == '__main__':
     unittest.main()

@@ -58,6 +58,16 @@ def get_images(doc):
     else:
         return doc.xpath('//img')
     
+def get_image_urls(images):
+    image_urls = []
+    if images != None:
+        for image in images:
+            src = image.get('src')
+            if is_url(src):
+                image_urls.append(src)
+        image_urls = set(image_urls)
+    return image_urls
+                
 def get_largest_image():
     return True
     
