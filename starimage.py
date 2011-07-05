@@ -77,7 +77,7 @@ def handle_exception(message):
 def get_doc_from_url(url):
     doc = None
     try:
-       doc = lxml.html.parse(url).getroot()   
+       doc = lxml.html.fromstring(urllib2.urlopen(url).read())  
     except IOError, e:
         handle_exception('Error opening url: ' + url)
     return doc
@@ -115,7 +115,7 @@ def get_images(doc):
     
 def is_number(s):
     if s == None:
-        return None
+        return False
     else:
         try:
             float(s)
@@ -169,7 +169,7 @@ def get_largest_image(images):
     if len(image_details) > 0:
         content_length = 0
         for image_detail in image_details:
-            content_length = get_url_content_length(image_detail['url'])           
+            content_length = get_url_content_length(image_detail['url'])        
             if largest_details == None:
                 largest_details = {'url': None, 'size': None}
             if largest_details['size'] == None or content_length > largest_details['size']:
