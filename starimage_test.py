@@ -197,6 +197,7 @@ class TestStarImage(unittest.TestCase):
         imgs = starimage.get_images(doc)     
         details = starimage.get_largest_image(imgs)   
         self.assertEquals(details['url'], 'http://a.com/2.gif')
+        self.assertEquals(details['filename'], '2.gif')
         self.assertEquals(details['size'], 500)
         self.assertEquals(details['width'], 100)
         self.assertEquals(details['height'], 300)

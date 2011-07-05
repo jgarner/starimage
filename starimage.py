@@ -21,6 +21,7 @@
 #       otherwise a dictionary object is returned
 #       {
 #           'url': <url of largest image found (string)>,
+#           'filename': <filename of image (string)>
 #           'size': <size in bytes of image (long)>,
 #           'width': <None or width of image if width attribute set in <img /> tag (int)>,
 #           'height': <None or height of image if height attribute set in <img /> tag (int)>
@@ -41,6 +42,7 @@
 #   
 #   if image_details != None:
 #       print image_details['url']
+#       print image_details['filename']
 #       print str(image_details['size'])
 #       if image_details['width'] != None:
 #           print str(image_details['width'])
@@ -57,6 +59,7 @@ import urlparse
 import re
 import lxml.html
 import urllib2    
+import os
             
 def is_url(url):
     if url == None:
@@ -177,6 +180,8 @@ def get_largest_image(images):
                 largest_details['size'] = content_length
                 largest_details['width'] = image_detail['width']
                 largest_details['height'] = image_detail['height']
+    if largest_details != None:
+        largest_details['filename'] = os.path.basename(largest_details['url'])
     return largest_details  
     
 def extract(url_or_html, base_url=None):

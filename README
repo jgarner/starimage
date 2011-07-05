@@ -21,6 +21,7 @@ starimage.extract(url_or_html, base_url=None)
       otherwise a dictionary object is returned
       {
           'url': <url of largest image found (string)>,
+          'filename': <filename of image (string)>
           'size': <size in bytes of image (long)>,
           'width': <None or width of image if width attribute set in <img /> tag (int)>,
           'height': <None or height of image if height attribute set in <img /> tag (int)>
@@ -41,6 +42,7 @@ Example:
   
   if image_details != None:
       print image_details['url']
+      print image_details['filename']
       print str(image_details['size'])
       if image_details['width'] != None:
           print str(image_details['width'])
