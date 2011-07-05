@@ -60,6 +60,9 @@ import re
 import lxml.html
 import urllib2    
 import os
+
+class StarImage():
+    pass
             
 def is_url(url):
     if url == None:

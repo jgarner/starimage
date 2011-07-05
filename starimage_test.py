@@ -1,4 +1,5 @@
 import starimage
+from starimage import StarImage
 import lxml
 import mock
 from mock import Mock, patch
@@ -6,7 +7,9 @@ import urllib2
 import unittest
 
 class TestStarImage(unittest.TestCase):        
-                     
+    def setUp(self):
+        self.star_image = StarImage()
+        
     html = "<html><header></header><body>\n\
         <img src='/r1.gif' />\n\
         <img src='/r2.gif' />\n\
@@ -29,7 +32,10 @@ class TestStarImage(unittest.TestCase):
             return 450
         else:
             return 0 
-                                   
+    
+    def test_starimage_is_an_instance_of_StarImage(self):
+        self.assertIsInstance(self.star_image, starimage.StarImage)        
+                                       
     def test_interface(self):                    
         self.assertIsNotNone(starimage.is_url)
         self.assertIsNotNone(starimage.is_html)
