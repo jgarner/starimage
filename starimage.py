@@ -70,6 +70,50 @@ class StarImage():
         else:
             parts = urlparse.urlparse(url)
             return parts.scheme in ['http', 'https']
+    
+    @staticmethod
+    def is_html(html):
+        if html == None:
+            return False
+        else:
+            return re.search('<html.*?>', html, re.I|re.S) != None 
+    
+    @classmethod
+    def handle_exception(message):
+         logging.error('starimage: ' + message)   
+     
+    def __get_doc_from_url(self, url):
+        doc = None
+        try:
+            doc = lxml.html.fromstring(urllib2.urlopen(url).read())  
+        except IOError, e:
+            handle_exception('Error opening url: ' + url)
+        return doc
+        
+    def __get_doc(self, url_or_html, base_url=None):
+        doc = None
+        from_url = False
+        try:
+            if url_or_html == None:
+                doc = None
+            elif is_url(url_or_html):
+                doc = self.__get_doc_from_url(url_or_html)
+                from_url = True
+            elif is_html(url_or_html):
+                doc = lxml.html.document_fromstring(url_or_html)
+            else:
+                doc = lxml.html.fragment_fromstring(url_or_html)
+        except lxml.etree.ParserError, e:
+            handle_exception('Error parsing HTML')
+        else:    
+            if doc != None:
+                if base_url == None and from_url == True:            
+                    parts = urlparse.urlparse(url_or_html)
+                    if parts.scheme in ['http', 'https'] and parts.hostname != None:
+                        base_url = parts.scheme + '://' + parts.hostname
+                if base_url != None:
+                    doc.make_links_absolute(base_url)        
+        return doc                                     
             
 def is_url(url):
     if url == None:

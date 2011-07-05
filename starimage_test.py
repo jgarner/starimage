@@ -33,13 +33,21 @@ class TestStarImage(unittest.TestCase):
         else:
             return 0 
             
-    # NEW CLASS TESTS
+    # NEW CLASS TESTS - Remove _ suffixes at end
     
     def test_starimage_is_an_instance_of_StarImage(self):
         self.assertIsInstance(self.star_image, starimage.StarImage)
         
-    def test_static_methods_interface(self):                    
-        self.assertIsNotNone(starimage.StarImage.is_url)      
+    def test_staticmethods_interface(self):                    
+        self.assertIsNotNone(starimage.StarImage.is_url)     
+        self.assertIsNotNone(starimage.StarImage.is_html)
+        
+    def test_classmethods_interface(self):                    
+        self.assertIsNotNone(starimage.StarImage.handle_exception)
+        
+    def test_private_functions_interface(self):                    
+        self.assertIsNotNone(self.star_image._StarImage__get_doc_from_url)  
+        self.assertIsNotNone(self.star_image._StarImage__get_doc)           
             
     # test StarImage.is_url(url)
     def test_is_url_return_false_if_url_equals_none_(self):
@@ -54,6 +62,56 @@ class TestStarImage(unittest.TestCase):
     def test_is_url_return_true_if_https_(self):
         self.assertTrue(starimage.StarImage.is_url('https://example.com'))     
                
+    # test StarImage.is_html(html) 
+    def test_is_html_return_false_if_equals_none_(self):
+        self.assertFalse(starimage.StarImage.is_html(None))  
+
+    def test_is_html_return_false_if_no_html_tag_found_(self):
+        self.assertFalse(starimage.StarImage.is_html("sfsf<img>"))
+
+    def test_is_html_return_true_if_html_tag_found_(self):
+        self.assertTrue(starimage.StarImage.is_html('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>'))        
+
+    def test_is_html_return_true_if_html_tag_found_with_attributes_(self):
+        self.assertTrue(starimage.StarImage.is_html('<HTML xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">'))
+                           
+    # test StarImage.__get_doc_from_url(self, url)
+    @patch('urllib2.urlopen')
+    def test_get_doc_from_url_raises_ioerror_with_invalid_url_(self, parse_mock):
+        parse_mock.side_effect = urllib2.URLError('error')
+        self.assertRaises(urllib2.URLError, self.star_image._StarImage__get_doc_from_url('http://invalidurl.com'))
+                                 
+    # test StarImage._get_doc(self, url_or_html, base_url=None)
+    def test_get_doc_return_none_if_param_is_none_(self):
+        self.assertIsNone(self.star_image._StarImage__get_doc(None))
+
+    @patch.object(starimage.StarImage, '_StarImage__get_doc_from_url')
+    def test_get_doc_returns_none_with_invalid_url_(self, get_doc_from_url_mock):
+        get_doc_from_url_mock.return_value = None
+        self.assertIsNone(self.star_image._StarImage__get_doc('http://invalidurl.com'))
+
+    @patch.object(starimage.StarImage, '_StarImage__get_doc_from_url')
+    def test_get_doc_returns_element_with_valid_url_(self, parse_mock):
+        parse_mock.return_value = lxml.html.document_fromstring('<html></html>')
+        self.assertIsInstance(self.star_image._StarImage__get_doc('http://example.com'), lxml.etree._Element)               
+
+    def test_get_doc_raises_parsererror_with_empty_string_(self):
+        self.assertRaises(lxml.etree.ParserError, self.star_image._StarImage__get_doc(''))    
+
+    def test_get_doc_returns_none_with_empty_string_(self):
+        self.assertIsNone(self.star_image._StarImage__get_doc('')) 
+
+    def test_get_doc_returns_instance_of_element_with_valid_html_(self):
+        self.assertIsInstance(self.star_image._StarImage__get_doc('<html><html>'), lxml.etree._Element)   
+
+    def test_get_doc_returns_instance_of_element_with_valid_html_fragment_(self):
+        self.assertIsInstance(self.star_image._StarImage__get_doc('<div>Hi</div>'), lxml.etree._Element)  
+
+    def test_get_doc_makes_imgs_absolute_with_base_url_(self):
+        doc = self.star_image._StarImage__get_doc('<html><body><img src="/img1.gif" /></body></html>', 'http://example.com')
+        imgs = doc.xpath('//img')
+        self.assertEquals(imgs[0].get('src'), 'http://example.com/img1.gif')
+                                               
     # END CLASS TESTS              
                                        
     def test_interface(self):                    
