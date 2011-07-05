@@ -62,7 +62,14 @@ import urllib2
 import os
 
 class StarImage():
-    pass
+    
+    @staticmethod 
+    def is_url(url):
+        if url == None:
+            return False
+        else:
+            parts = urlparse.urlparse(url)
+            return parts.scheme in ['http', 'https']
             
 def is_url(url):
     if url == None:

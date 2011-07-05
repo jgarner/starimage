@@ -32,9 +32,29 @@ class TestStarImage(unittest.TestCase):
             return 450
         else:
             return 0 
+            
+    # NEW CLASS TESTS
     
     def test_starimage_is_an_instance_of_StarImage(self):
-        self.assertIsInstance(self.star_image, starimage.StarImage)        
+        self.assertIsInstance(self.star_image, starimage.StarImage)
+        
+    def test_static_methods_interface(self):                    
+        self.assertIsNotNone(starimage.StarImage.is_url)      
+            
+    # test StarImage.is_url(url)
+    def test_is_url_return_false_if_url_equals_none_(self):
+        self.assertFalse(starimage.StarImage.is_url(None))
+
+    def test_is_url_return_false_if_not_http_or_https_(self):
+        self.assertFalse(starimage.StarImage.is_url('ftp://example'))
+
+    def test_is_url_return_true_if_http_(self):
+        self.assertTrue(starimage.StarImage.is_url('http://example.com')) 
+
+    def test_is_url_return_true_if_https_(self):
+        self.assertTrue(starimage.StarImage.is_url('https://example.com'))     
+               
+    # END CLASS TESTS              
                                        
     def test_interface(self):                    
         self.assertIsNotNone(starimage.is_url)
