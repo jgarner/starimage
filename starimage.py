@@ -106,7 +106,7 @@ class StarImage():
             if hasattr(e, 'reason'):
                 StarImage.handle_exception('We failed to read a server for: ' + url + '. Reason: ' + str(e.reason))
             elif hasattr(e, 'code'):
-                StarImage.andle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
+                StarImage.handle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
         else:
             if response.headers.has_key('content-length'):
                 content_length = long(response.headers['content-length'])
