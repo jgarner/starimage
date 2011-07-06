@@ -95,7 +95,22 @@ class StarImage():
                 float(s)
                 return True
             except ValueError:
-                return False            
+                return False 
+                
+    @staticmethod            
+    def get_url_content_length(url):
+        content_length = 0;
+        try:
+            response = urllib2.urlopen(HeadRequest(url))
+        except urllib2.URLError, e:
+            if hasattr(e, 'reason'):
+                StarImage.handle_exception('We failed to read a server for: ' + url + '. Reason: ' + str(e.reason))
+            elif hasattr(e, 'code'):
+                StarImage.andle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
+        else:
+            if response.headers.has_key('content-length'):
+                content_length = long(response.headers['content-length'])
+        return content_length                           
     
     @classmethod
     def handle_exception(cls, message):
@@ -134,15 +149,13 @@ class StarImage():
                     doc.make_links_absolute(self.base_url)        
         return doc                                     
            
-    @staticmethod 
-    def get_images(doc):
+    def __get_images(self, doc):
         if doc == None:
             return None
         else:
             return doc.xpath('//img')    
 
-    @staticmethod
-    def get_image_details(images):
+    def __get_image_details(self, images):
         image_details = []
         if images != None:
             for image in images:            
@@ -164,25 +177,9 @@ class StarImage():
                         image_details.append(image_detail)
         return image_details        
 
-    @staticmethod
-    def get_url_content_length(url):
-        content_length = 0;
-        try:
-            response = urllib2.urlopen(HeadRequest(url))
-        except urllib2.URLError, e:
-            if hasattr(e, 'reason'):
-                StarImage.handle_exception('We failed to read a server for: ' + url + '. Reason: ' + str(e.reason))
-            elif hasattr(e, 'code'):
-                StarImage.andle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
-        else:
-            if response.headers.has_key('content-length'):
-                content_length = long(response.headers['content-length'])
-        return content_length
-
-    @staticmethod
-    def get_largest_image(images): 
+    def __get_largest_image(self, images): 
         largest_details = None   
-        image_details = StarImage.get_image_details(images)
+        image_details = self.__get_image_details(images)
         if len(image_details) > 0:
             content_length = 0
             for image_detail in image_details:
@@ -203,9 +200,9 @@ class StarImage():
         if doc == None:
             return None
         else:
-            images = StarImage.get_images(doc)
-            return StarImage.get_largest_image(images)
+            images = self.__get_images(doc)
+            return self.__get_largest_image(images)
             
 def extract(url_or_html, base_url=None):
-    star_image = StarImage(url_or_html, base_url)
-    return star_image.extract()
+    star = StarImage(url_or_html, base_url)
+    return star.extract()
