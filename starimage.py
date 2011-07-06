@@ -67,6 +67,10 @@ class HeadRequest(urllib2.Request):
         
 class StarImage():
     
+    def __init__(self, url_or_html, base_url=None):
+        self.url_or_html = url_or_html
+        self.base_url = base_url
+        
     @staticmethod 
     def is_url(url):
         if url == None:
@@ -81,51 +85,7 @@ class StarImage():
             return False
         else:
             return re.search('<html.*?>', html, re.I|re.S) != None 
-    
-    @staticmethod
-    def handle_exception(message):
-         logging.error('starimage: ' + message)   
-     
-    def __get_doc_from_url(self, url):
-        doc = None
-        try:
-            doc = lxml.html.fromstring(urllib2.urlopen(url).read())  
-        except IOError, e:
-            StarImage.handle_exception('Error opening url: ' + url)
-        return doc
-        
-    def __get_doc(self, url_or_html, base_url=None):
-        doc = None
-        from_url = False
-        try:
-            if url_or_html == None:
-                doc = None
-            elif StarImage.is_url(url_or_html):
-                doc = self.__get_doc_from_url(url_or_html)
-                from_url = True
-            elif StarImage.is_html(url_or_html):
-                doc = lxml.html.document_fromstring(url_or_html)
-            else:
-                doc = lxml.html.fragment_fromstring(url_or_html)
-        except lxml.etree.ParserError, e:
-            StarImage.handle_exception('Error parsing HTML')
-        else:    
-            if doc != None:
-                if base_url == None and from_url == True:            
-                    parts = urlparse.urlparse(url_or_html)
-                    if parts.scheme in ['http', 'https'] and parts.hostname != None:
-                        base_url = parts.scheme + '://' + parts.hostname
-                if base_url != None:
-                    doc.make_links_absolute(base_url)        
-        return doc                                     
-           
-    @staticmethod 
-    def get_images(doc):
-        if doc == None:
-            return None
-        else:
-            return doc.xpath('//img')    
-  
+            
     @staticmethod
     def is_number(s):
         if s == None:
@@ -135,7 +95,51 @@ class StarImage():
                 float(s)
                 return True
             except ValueError:
-                return False
+                return False            
+    
+    @classmethod
+    def handle_exception(cls, message):
+         logging.error('starimage: ' + message)   
+     
+    def __get_doc_from_url(self):
+        doc = None
+        try:
+            doc = lxml.html.fromstring(urllib2.urlopen(self.url_or_html).read())  
+        except IOError, e:
+            StarImage.handle_exception('Error opening url: ' + self.url_or_html)
+        return doc
+        
+    def __get_doc(self):
+        doc = None
+        from_url = False
+        try:
+            if self.url_or_html == None:
+                doc = None
+            elif StarImage.is_url(self.url_or_html):
+                doc = self.__get_doc_from_url()
+                from_url = True
+            elif StarImage.is_html(self.url_or_html):
+                doc = lxml.html.document_fromstring(self.url_or_html)
+            else:
+                doc = lxml.html.fragment_fromstring(self.url_or_html)
+        except lxml.etree.ParserError, e:
+            StarImage.handle_exception('Error parsing HTML')
+        else:    
+            if doc != None:
+                if self.base_url == None and from_url == True:            
+                    parts = urlparse.urlparse(self.url_or_html)
+                    if parts.scheme in ['http', 'https'] and parts.hostname != None:
+                        self.base_url = parts.scheme + '://' + parts.hostname
+                if self.base_url != None:
+                    doc.make_links_absolute(self.base_url)        
+        return doc                                     
+           
+    @staticmethod 
+    def get_images(doc):
+        if doc == None:
+            return None
+        else:
+            return doc.xpath('//img')    
 
     @staticmethod
     def get_image_details(images):
@@ -194,8 +198,8 @@ class StarImage():
             largest_details['filename'] = os.path.basename(largest_details['url'])
         return largest_details  
 
-    def extract(self, url_or_html, base_url=None):
-        doc = self.__get_doc(url_or_html, base_url)
+    def extract(self):
+        doc = self.__get_doc()
         if doc == None:
             return None
         else:
@@ -203,5 +207,5 @@ class StarImage():
             return StarImage.get_largest_image(images)
             
 def extract(url_or_html, base_url=None):
-    star_image = StarImage()
-    return star_image.extract(url_or_html, base_url)
+    star_image = StarImage(url_or_html, base_url)
+    return star_image.extract()
