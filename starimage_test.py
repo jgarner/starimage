@@ -8,9 +8,6 @@ import unittest
 
 class TestStarImage(unittest.TestCase):    
         
-    def setUp(self):
-        self.star = StarImage('<html></html>')
-        
     html = "<html><header></header><body>\n\
         <img src='/r1.gif' />\n\
         <img src='/r2.gif' />\n\
@@ -20,7 +17,10 @@ class TestStarImage(unittest.TestCase):
         <img src='http://a.com/3.gif' />\n\
         <img src='http://a.com/4.gif' />\n\
         </body></html>"
-            
+        
+    def setUp(self):
+        self.star = StarImage('<html></html>')
+                    
     def get_content_length(*args, **kwargs):
         url  = args[1]
         if url == 'http://a.com/1.gif':
