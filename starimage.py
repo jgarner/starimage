@@ -61,6 +61,10 @@ import lxml.html
 import urllib2    
 import os
 
+class HeadRequest(urllib2.Request):
+    def get_method(self):
+        return "HEAD"
+        
 class StarImage():
     
     @staticmethod 
@@ -78,7 +82,7 @@ class StarImage():
         else:
             return re.search('<html.*?>', html, re.I|re.S) != None 
     
-    @classmethod
+    @staticmethod
     def handle_exception(message):
          logging.error('starimage: ' + message)   
      
@@ -87,7 +91,7 @@ class StarImage():
         try:
             doc = lxml.html.fromstring(urllib2.urlopen(url).read())  
         except IOError, e:
-            handle_exception('Error opening url: ' + url)
+            StarImage.handle_exception('Error opening url: ' + url)
         return doc
         
     def __get_doc(self, url_or_html, base_url=None):
@@ -96,15 +100,15 @@ class StarImage():
         try:
             if url_or_html == None:
                 doc = None
-            elif is_url(url_or_html):
+            elif StarImage.is_url(url_or_html):
                 doc = self.__get_doc_from_url(url_or_html)
                 from_url = True
-            elif is_html(url_or_html):
+            elif StarImage.is_html(url_or_html):
                 doc = lxml.html.document_fromstring(url_or_html)
             else:
                 doc = lxml.html.fragment_fromstring(url_or_html)
         except lxml.etree.ParserError, e:
-            handle_exception('Error parsing HTML')
+            StarImage.handle_exception('Error parsing HTML')
         else:    
             if doc != None:
                 if base_url == None and from_url == True:            
@@ -114,134 +118,90 @@ class StarImage():
                 if base_url != None:
                     doc.make_links_absolute(base_url)        
         return doc                                     
-            
-def is_url(url):
-    if url == None:
-        return False
-    else:
-        parts = urlparse.urlparse(url)
-        return parts.scheme in ['http', 'https']
-    
-def is_html(html):
-    if html == None:
-        return False
-    else:
-        return re.search('<html.*?>', html, re.I|re.S) != None   
-  
-def handle_exception(message):
-     logging.error('starimage: ' + message)
-             
-def get_doc_from_url(url):
-    doc = None
-    try:
-       doc = lxml.html.fromstring(urllib2.urlopen(url).read())  
-    except IOError, e:
-        handle_exception('Error opening url: ' + url)
-    return doc
-              
-def get_doc(url_or_html, base_url=None):
-    doc = None
-    from_url = False
-    try:
-        if url_or_html == None:
-            doc = None
-        elif is_url(url_or_html):
-            doc = get_doc_from_url(url_or_html)
-            from_url = True
-        elif is_html(url_or_html):
-            doc = lxml.html.document_fromstring(url_or_html)
+           
+    @staticmethod 
+    def get_images(doc):
+        if doc == None:
+            return None
         else:
-            doc = lxml.html.fragment_fromstring(url_or_html)
-    except lxml.etree.ParserError, e:
-        handle_exception('Error parsing HTML')
-    else:    
-        if doc != None:
-            if base_url == None and from_url == True:            
-                parts = urlparse.urlparse(url_or_html)
-                if parts.scheme in ['http', 'https'] and parts.hostname != None:
-                    base_url = parts.scheme + '://' + parts.hostname
-            if base_url != None:
-                doc.make_links_absolute(base_url)        
-    return doc 
-                    
-def get_images(doc):
-    if doc == None:
-        return None
-    else:
-        return doc.xpath('//img')
-    
-def is_number(s):
-    if s == None:
-        return False
-    else:
-        try:
-            float(s)
-            return True
-        except ValueError:
+            return doc.xpath('//img')    
+  
+    @staticmethod
+    def is_number(s):
+        if s == None:
             return False
-        
-def get_image_details(images):
-    image_details = []
-    if images != None:
-        for image in images:            
-            src = image.get('src')
-            if is_url(src):
-                url_already_used = False
-                for image_item in image_details:
-                    if image_item['url'] == src:
-                        url_already_used = True
-                        break
-                if not url_already_used:
-                    image_detail = {'url': src, 'width': None, 'height': None}
-                    image_width = image.get('width')
-                    image_height = image.get('height')
-                    if is_number(image_width):
-                        image_detail['width'] = int(image_width)
-                    if is_number(image_height):
-                        image_detail['height'] = int(image_height)
-                    image_details.append(image_detail)
-    return image_details        
-              
-class HeadRequest(urllib2.Request):
-    def get_method(self):
-        return "HEAD"
-                            
-def get_url_content_length(url):
-    content_length = 0;
-    try:
-        response = urllib2.urlopen(HeadRequest(url))
-    except urllib2.URLError, e:
-        if hasattr(e, 'reason'):
-            handle_exception('We failed to read a server for: ' + url + '. Reason: ' + str(e.reason))
-        elif hasattr(e, 'code'):
-            handle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
-    else:
-        if response.headers.has_key('content-length'):
-            content_length = long(response.headers['content-length'])
-    return content_length
-    
-def get_largest_image(images): 
-    largest_details = None   
-    image_details = get_image_details(images)
-    if len(image_details) > 0:
-        content_length = 0
-        for image_detail in image_details:
-            content_length = get_url_content_length(image_detail['url'])        
-            if largest_details == None:
-                largest_details = {'url': None, 'size': None}
-            if largest_details['size'] == None or content_length > largest_details['size']:
-                largest_details['url'] = image_detail['url']
-                largest_details['size'] = content_length
-                largest_details['width'] = image_detail['width']
-                largest_details['height'] = image_detail['height']
-    if largest_details != None:
-        largest_details['filename'] = os.path.basename(largest_details['url'])
-    return largest_details  
-    
+        else:
+            try:
+                float(s)
+                return True
+            except ValueError:
+                return False
+
+    @staticmethod
+    def get_image_details(images):
+        image_details = []
+        if images != None:
+            for image in images:            
+                src = image.get('src')
+                if StarImage.is_url(src):
+                    url_already_used = False
+                    for image_item in image_details:
+                        if image_item['url'] == src:
+                            url_already_used = True
+                            break
+                    if not url_already_used:
+                        image_detail = {'url': src, 'width': None, 'height': None}
+                        image_width = image.get('width')
+                        image_height = image.get('height')
+                        if StarImage.is_number(image_width):
+                            image_detail['width'] = int(image_width)
+                        if StarImage.is_number(image_height):
+                            image_detail['height'] = int(image_height)
+                        image_details.append(image_detail)
+        return image_details        
+
+    @staticmethod
+    def get_url_content_length(url):
+        content_length = 0;
+        try:
+            response = urllib2.urlopen(HeadRequest(url))
+        except urllib2.URLError, e:
+            if hasattr(e, 'reason'):
+                StarImage.handle_exception('We failed to read a server for: ' + url + '. Reason: ' + str(e.reason))
+            elif hasattr(e, 'code'):
+                StarImage.andle_exception('The server couldn\'t fulfill the request for: ' + url + '. Error code: ' + str(e.code))
+        else:
+            if response.headers.has_key('content-length'):
+                content_length = long(response.headers['content-length'])
+        return content_length
+
+    @staticmethod
+    def get_largest_image(images): 
+        largest_details = None   
+        image_details = StarImage.get_image_details(images)
+        if len(image_details) > 0:
+            content_length = 0
+            for image_detail in image_details:
+                content_length = StarImage.get_url_content_length(image_detail['url'])  
+                if largest_details == None:
+                    largest_details = {'url': None, 'size': None}
+                if largest_details['size'] == None or content_length > largest_details['size']:
+                    largest_details['url'] = image_detail['url']
+                    largest_details['size'] = content_length
+                    largest_details['width'] = image_detail['width']
+                    largest_details['height'] = image_detail['height']
+        if largest_details != None:
+            largest_details['filename'] = os.path.basename(largest_details['url'])
+        return largest_details  
+
+    def extract(self, url_or_html, base_url=None):
+        doc = self.__get_doc(url_or_html, base_url)
+        if doc == None:
+            return None
+        else:
+            images = StarImage.get_images(doc)
+            return StarImage.get_largest_image(images)
+            
 def extract(url_or_html, base_url=None):
-    doc = get_doc(url_or_html, base_url)
-    if doc == None:
-        return None
-    else:
-        images = get_images(doc)
-        return get_largest_image(images)
+    star_image = StarImage()
+    return star_image.extract(url_or_html, base_url)
