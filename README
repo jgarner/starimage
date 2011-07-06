@@ -1,6 +1,6 @@
 Use starimage to find details of the largest image on a web page.
 
-Main usage:
+MAIN USAGE:
 
 starimage.extract(url_or_html, base_url=None)
 
@@ -51,5 +51,47 @@ Example:
 
 Library dependencies:
   lxml: http://lxml.de/
+
+TESTING:
+
+To run the main tests please run this file:
+  python starimage_test.py
+  Note: This runs mocks only for all web requests.
+
+You can run your own tests based on real web requests by using a few methods.
+
+Method to test html from a file:
+  starimage_test.test_html_from_file(file_path, expected_details, base_url=None):
+
+  Params:
+      file_path: full path to a file
+      expected_details: dictionary object of expected return results
+      base_url: base_url to use for relative urls (optional)
+
+Method to test from a full url or html string:
+  starimage_test.test_from_url_or_html(url_or_html, expected_details, base_url=None):
+
+  Params:
+      url_or_html: full url or html string
+      expected_details: dictionary object of expected return results
+      base_url: base_url to use for relative urls (optional)
+
+What is tested?
+  The first test is to make sure some details are returned.
+  If no details are returned an exception will be raised.
+
+  With each of the methods there is a param for a dictionary object for details you expect 
+  to be returned. You don't have to provide all the details only the ones you wish to test.
+  The expected details will be tested against the details returned and if an
+  expected detail doesn't match a returned detail an exception will be raised.
+
+      expected_details param example:
+          {
+              'url': (string),
+              'filename': (string),
+              'size': (long),
+              'width': (int),
+              'height': (int),
+          }
 
 author: Joshua Garner

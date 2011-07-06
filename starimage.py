@@ -1,6 +1,6 @@
 # Use starimage to find details of the largest image on a web page.
 # 
-# Main usage:
+# MAIN USAGE:
 # 
 # starimage.extract(url_or_html, base_url=None)
 # 
@@ -52,7 +52,7 @@
 # Library dependencies:
 #   lxml: http://lxml.de/
 # 
-# author: Joshua Garner
+# Author: Joshua Garner
 
 import logging
 import urlparse

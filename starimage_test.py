@@ -1,3 +1,47 @@
+# TESTING:
+#
+# To run the main tests please run this file:
+#   python starimage_test.py
+#   Note: This runs mocks only for all web requests.
+# 
+# You can run your own tests based on real web requests by using a few methods.
+#
+# Method to test html from a file:
+#   starimage_test.test_html_from_file(file_path, expected_details, base_url=None):
+#
+#   Params:
+#       file_path: full path to a file
+#       expected_details: dictionary object of expected return results
+#       base_url: base_url to use for relative urls (optional)
+#
+# Method to test from a full url or html string:
+#   starimage_test.test_from_url_or_html(url_or_html, expected_details, base_url=None):
+#
+#   Params:
+#       url_or_html: full url or html string
+#       expected_details: dictionary object of expected return results
+#       base_url: base_url to use for relative urls (optional)
+#
+# What is tested?
+#   The first test is to make sure some details are returned.
+#   If no details are returned an exception will be raised.
+#
+#   With each of the methods there is a param for a dictionary object for details you expect 
+#   to be returned. You don't have to provide all the details only the ones you wish to test.
+#   The expected details will be tested against the details returned and if an
+#   expected detail doesn't match a returned detail an exception will be raised.
+#
+#       expected_details param example:
+#           {
+#               'url': (string),
+#               'filename': (string),
+#               'size': (long),
+#               'width': (int),
+#               'height': (int),
+#           }
+#
+# Author: Joshua Garner
+
 import starimage
 from starimage import StarImage
 import lxml
@@ -16,10 +60,13 @@ class TestStarImage(unittest.TestCase):
         <img src='http://a.com/2.gif' width='100', height='300' />\n\
         <img src='http://a.com/3.gif' />\n\
         <img src='http://a.com/4.gif' />\n\
-        </body></html>"
-        
+        </body></html>"      
+    
     def setUp(self):
         self.star = StarImage('<html></html>')
+        
+    def tearDown(self):
+      self.star = None
                     
     def get_content_length(*args, **kwargs):
         url  = args[1]
@@ -240,6 +287,53 @@ class TestStarImage(unittest.TestCase):
     def test_extract_gets_largest_image(self, get_url_content_length_mock):
         get_url_content_length_mock.side_effect = self.get_content_length
         self.assertEquals(starimage.extract(TestStarImage.html)['url'], 'http://a.com/2.gif')        
-            
+   
+# Test class to enable users to test from:
+#   - a file containing html
+#   - a full url
+#   - a string containing html
+class TestUserStarImage(unittest.TestCase):    
+    def set_values(self, test_type, user_input, expected_details, base_url=None):
+        self.test_type = test_type
+        self.user_input = user_input
+        self.expected_details = expected_details
+        self.base_url = base_url
+        
+    def runTest(self):
+        details = None
+        if self.test_type == 1:
+            details = starimage.extract(open(self.user_input).read(), self.base_url)
+        else:
+            details = starimage.extract(self.user_input, self.base_url)
+        self.assertIsNotNone(details)
+        if details != None:      
+          if expected_details.has_key('url'):
+            self.assertEquals(details['url'], expected_details['url'])
+          if expected_details.has_key('filename'):
+            self.assertEquals(details['filename'], expected_details['filename']) 
+          if expected_details.has_key('size'):
+            self.assertEquals(details['size'], expected_details['size'])
+          if expected_details.has_key('width'):
+            self.assertEquals(details['width'], expected_details['width']) 
+          if expected_details.has_key('height'):
+            self.assertEquals(details['height'], expected_details['height'])                                                      
+     
+# Wrapper for running a user based test on the TestUserStarImage class         
+def run_user_test(test_type, file_path, expected_details, base_url=None): 
+    test_case = TestUserStarImage()
+    test_case.set_values(test_type, file_path, expected_details, base_url)
+    suite = unittest.TestSuite()
+    suite.addTest(test_case);
+    unittest.TextTestRunner(verbosity=2).run(suite)  
+    
+# User test from a file path
+def test_html_from_file(file_path, expected_details, base_url=None):
+    run_user_test(1, file_path, expected_details, base_url)
+    
+# User test from a url or html
+def test_from_url_or_html(url_or_html, expected_details, base_url=None):
+    run_user_test(2, url_or_html, expected_details, base_url) 
+        
 if __name__ == '__main__':
-    unittest.main()
+     suite = unittest.TestLoader().loadTestsFromTestCase(TestStarImage)
+     unittest.TextTestRunner(verbosity=2).run(suite)  
