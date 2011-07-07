@@ -307,16 +307,16 @@ class TestUserStarImage(unittest.TestCase):
             details = starimage.extract(self.user_input, self.base_url)
         self.assertIsNotNone(details)
         if details != None:      
-          if expected_details.has_key('url'):
-            self.assertEquals(details['url'], expected_details['url'])
-          if expected_details.has_key('filename'):
-            self.assertEquals(details['filename'], expected_details['filename']) 
-          if expected_details.has_key('size'):
-            self.assertEquals(details['size'], expected_details['size'])
-          if expected_details.has_key('width'):
-            self.assertEquals(details['width'], expected_details['width']) 
-          if expected_details.has_key('height'):
-            self.assertEquals(details['height'], expected_details['height'])                                                      
+          if self.expected_details.has_key('url'):
+            self.assertEquals(details['url'], self.expected_details['url'])
+          if self.expected_details.has_key('filename'):
+            self.assertEquals(details['filename'], self.expected_details['filename']) 
+          if self.expected_details.has_key('size'):
+            self.assertEquals(details['size'], self.expected_details['size'])
+          if self.expected_details.has_key('width'):
+            self.assertEquals(details['width'], self.expected_details['width']) 
+          if self.expected_details.has_key('height'):
+            self.assertEquals(details['height'], self.expected_details['height'])                                                      
      
 # Wrapper for running a user based test on the TestUserStarImage class         
 def run_user_test(test_type, file_path, expected_details, base_url=None): 
