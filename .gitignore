@@ -1,3 +1,4 @@
 *.pyc
 tmtags
 .DS_Store
+.idea
