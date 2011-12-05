@@ -40,13 +40,13 @@
 #       img src='http://a.com/img.jpg' /></div>"
 #   image_details = starimage.extract(fragment)
 #   
-#   if image_details != None:
+#   if image_details is not None:
 #       print image_details['url']
 #       print image_details['filename']
 #       print str(image_details['size'])
-#       if image_details['width'] != None:
+#       if image_details['width'] is not None:
 #           print str(image_details['width'])
-#       if image_details['height'] != None:
+#       if image_details['height'] is not None:
 #           print str(image_details['height'])
 # 
 # Library dependencies:
@@ -73,7 +73,7 @@ class StarImage():
         
     @staticmethod 
     def is_url(url):
-        if url == None:
+        if url is None:
             return False
         else:
             parts = urlparse.urlparse(url)
@@ -81,14 +81,14 @@ class StarImage():
     
     @staticmethod
     def is_html(html):
-        if html == None:
+        if html is None:
             return False
         else:
-            return re.search('<html.*?>', html, re.I|re.S) != None 
+            return re.search('<html.*?>', html, re.I|re.S) is not None 
             
     @staticmethod
     def is_number(s):
-        if s == None:
+        if s is None:
             return False
         else:
             try:
@@ -99,7 +99,7 @@ class StarImage():
                 
     @staticmethod            
     def get_url_content_length(url):
-        content_length = 0;
+        content_length = 0
         try:
             response = urllib2.urlopen(HeadRequest(url))
         except urllib2.URLError, e:
@@ -120,7 +120,7 @@ class StarImage():
         doc = None
         try:
             doc = lxml.html.fromstring(urllib2.urlopen(self.url_or_html).read())  
-        except IOError, e:
+        except IOError:
             StarImage.handle_exception('Error opening url: ' + self.url_or_html)
         return doc
         
@@ -128,7 +128,7 @@ class StarImage():
         doc = None
         from_url = False
         try:
-            if self.url_or_html == None:
+            if self.url_or_html is None:
                 doc = None
             elif StarImage.is_url(self.url_or_html):
                 doc = self.__get_doc_from_url()
@@ -140,24 +140,24 @@ class StarImage():
         except lxml.etree.ParserError, e:
             StarImage.handle_exception('Error parsing HTML')
         else:    
-            if doc != None:
-                if self.base_url == None and from_url == True:            
+            if doc is not None:
+                if self.base_url is None and from_url == True:            
                     parts = urlparse.urlparse(self.url_or_html)
-                    if parts.scheme in ['http', 'https'] and parts.hostname != None:
+                    if parts.scheme in ['http', 'https'] and parts.hostname is not None:
                         self.base_url = parts.scheme + '://' + parts.hostname
-                if self.base_url != None:
+                if self.base_url is not None:
                     doc.make_links_absolute(self.base_url)        
         return doc                                     
            
     def __get_images(self, doc):
-        if doc == None:
+        if doc is None:
             return None
         else:
             return doc.xpath('//img')    
 
     def __get_image_details(self, images):
         image_details = []
-        if images != None:
+        if images is not None:
             for image in images:            
                 src = image.get('src')
                 if StarImage.is_url(src):
@@ -181,23 +181,22 @@ class StarImage():
         largest_details = None   
         image_details = self.__get_image_details(images)
         if len(image_details) > 0:
-            content_length = 0
             for image_detail in image_details:
                 content_length = StarImage.get_url_content_length(image_detail['url'])  
-                if largest_details == None:
+                if largest_details is None:
                     largest_details = {'url': None, 'size': None}
-                if largest_details['size'] == None or content_length > largest_details['size']:
+                if largest_details['size'] is None or content_length > largest_details['size']:
                     largest_details['url'] = image_detail['url']
                     largest_details['size'] = content_length
                     largest_details['width'] = image_detail['width']
                     largest_details['height'] = image_detail['height']
-        if largest_details != None:
+        if largest_details is not None:
             largest_details['filename'] = os.path.basename(largest_details['url'])
         return largest_details  
 
     def extract(self):
         doc = self.__get_doc()
-        if doc == None:
+        if doc is None:
             return None
         else:
             images = self.__get_images(doc)
